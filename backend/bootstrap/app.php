@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\RedirectController;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Route::get('/{code}', RedirectController::class)
+            ->where('code', '[a-z0-9-]{3,32}')
+            ->name('links.redirect');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
