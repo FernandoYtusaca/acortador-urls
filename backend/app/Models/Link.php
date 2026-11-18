@@ -13,14 +13,21 @@ class Link extends Model
 
     protected $appends = ['short_url', 'is_expired'];
 
-    protected function isExpired(): Attribute
+    protected function casts(): array
     {
-        return Attribute::get(fn () => $this->expires_at?->isPast() ?? false);
+        return [
+            'expires_at' => 'datetime',
+        ];
     }
 
     protected function shortUrl(): Attribute
     {
         return Attribute::get(fn () => rtrim(config('app.url'), '/').'/'.$this->code);
+    }
+
+    protected function isExpired(): Attribute
+    {
+        return Attribute::get(fn () => $this->expires_at?->isPast() ?? false);
     }
 
     public static function generateCode(int $length = 6): string
