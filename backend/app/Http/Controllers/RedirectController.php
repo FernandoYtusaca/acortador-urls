@@ -13,13 +13,14 @@ class RedirectController extends Controller
         $link = Link::where('code', $code)->first();
 
         abort_if($link === null, 404);
-        abort_if($link->expires_at?->isPast(), 410, 'Este enlace ha expirado.');
+        abort_if($link->is_expired, 410, 'Este enlace ha expirado.');
 
         DB::transaction(function () use ($link, $request) {
             $link->increment('total_clicks');
             $link->clicks()->create([
                 'referer' => $this->limit($request->headers->get('referer')),
                 'user_agent' => $this->limit($request->userAgent()),
+                'clicked_at' => now(),
             ]);
         });
 

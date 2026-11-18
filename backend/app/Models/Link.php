@@ -11,13 +11,11 @@ class Link extends Model
 {
     protected $fillable = ['original_url', 'code', 'expires_at'];
 
-    protected $appends = ['short_url'];
+    protected $appends = ['short_url', 'is_expired'];
 
-    protected function casts(): array
+    protected function isExpired(): Attribute
     {
-        return [
-            'expires_at' => 'datetime',
-        ];
+        return Attribute::get(fn () => $this->expires_at?->isPast() ?? false);
     }
 
     protected function shortUrl(): Attribute

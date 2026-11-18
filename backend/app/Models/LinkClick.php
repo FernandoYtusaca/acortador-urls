@@ -9,7 +9,7 @@ class LinkClick extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['referer', 'user_agent'];
+    protected $fillable = ['referer', 'user_agent', 'clicked_at'];
 
     protected function casts(): array
     {
