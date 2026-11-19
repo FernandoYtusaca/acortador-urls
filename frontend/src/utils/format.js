@@ -29,3 +29,12 @@ export function formatDayShort(value) {
   const [, m, d] = String(value).split('-')
   return `${d}/${m}`
 }
+
+// Convierte una fecha ISO (UTC) al formato que espera <input type="datetime-local">,
+// en la hora local del navegador: 2026-12-01T10:30
+export function toDatetimeLocal(value) {
+  const d = toDate(value)
+  const pad = (n) => String(n).padStart(2, '0')
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}

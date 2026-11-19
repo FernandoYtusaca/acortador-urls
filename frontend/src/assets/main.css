@@ -435,3 +435,19 @@ button.link.danger:hover {
   font-size: 11px;
   fill: #6b7280;
 }
+
+button.danger {
+  background: #dc2626;
+}
+button.danger:hover {
+  background: #b91c1c;
+}
+
+.actions-row {
+  display: flex;
+  gap: 0.5rem;
+}
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}

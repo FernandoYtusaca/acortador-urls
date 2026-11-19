@@ -1,14 +1,16 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/services/api'
 import AppHeader from '@/components/AppHeader.vue'
 import ClicksChart from '@/components/ClicksChart.vue'
 import CopyButton from '@/components/CopyButton.vue'
+import LinkEditForm from '@/components/LinkEditForm.vue'
 import LinkStatus from '@/components/LinkStatus.vue'
 import { formatDateTime } from '@/utils/format'
 
 const route = useRoute()
+const router = useRouter()
 const id = route.params.id
 
 const link = ref(null)
@@ -16,6 +18,8 @@ const stats = ref(null)
 const days = ref(30)
 const loading = ref(true)
 const error = ref('')
+const editing = ref(false)
+const actionError = ref('')
 
 const shortLabel = computed(() => link.value?.short_url.replace(/^https?:\/\//, ''))
 
@@ -32,6 +36,23 @@ async function loadStats() {
     stats.value = await api.get(`/links/${id}/stats`, { days: days.value })
   } catch {
     error.value = 'No se pudieron cargar las estadísticas.'
+  }
+}
+
+function onSaved(updated) {
+  link.value = updated
+  editing.value = false
+}
+
+async function remove() {
+  if (!confirm('¿Eliminar este enlace? También se perderán sus estadísticas de clics.')) return
+
+  actionError.value = ''
+  try {
+    await api.delete(`/links/${id}`)
+    router.push({ name: 'links' })
+  } catch {
+    actionError.value = 'No se pudo eliminar el enlace.'
   }
 }
 
@@ -55,7 +76,15 @@ watch(days, loadStats)
 
     <template v-else-if="link">
       <section class="panel">
-        <h2>{{ shortLabel }}</h2>
+        <div class="panel-head">
+          <h2>{{ shortLabel }}</h2>
+          <div class="actions-row">
+            <button class="secondary" @click="editing = true">Editar</button>
+            <button class="danger" @click="remove">Eliminar</button>
+          </div>
+        </div>
+
+        <p v-if="actionError" class="error">{{ actionError }}</p>
 
         <dl class="details">
           <dt>Enlace corto</dt>
@@ -79,6 +108,8 @@ watch(days, loadStats)
           <dd>{{ link.total_clicks }}</dd>
         </dl>
       </section>
+
+      <LinkEditForm v-if="editing" :link="link" @saved="onSaved" @cancel="editing = false" />
 
       <section v-if="stats" class="panel">
         <div class="panel-head">
