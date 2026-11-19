@@ -367,3 +367,71 @@ button.link.danger:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.back {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.panel-head h2 {
+  margin: 0;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+}
+.details dt {
+  color: #6b7280;
+}
+.details dd {
+  margin: 0;
+}
+.break {
+  overflow-wrap: anywhere;
+}
+
+.stat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stat-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+.stat-list li:last-child {
+  border-bottom: 0;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+}
+.chart-bar {
+  fill: #6366f1;
+}
+.chart-bar:hover {
+  fill: #4338ca;
+}
+.chart-axis {
+  stroke: #d1d5db;
+  stroke-width: 1;
+}
+.chart-label {
+  font-size: 11px;
+  fill: #6b7280;
+}

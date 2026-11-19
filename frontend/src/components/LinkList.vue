@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import { api } from '@/services/api'
-import { formatDate } from '@/utils/format'
 import CopyButton from '@/components/CopyButton.vue'
+import LinkStatus from '@/components/LinkStatus.vue'
 
 const props = defineProps({
   refreshKey: { type: Number, default: 0 },
@@ -33,7 +33,7 @@ onMounted(loadLinks)
 
 watch(page, loadLinks)
 
-// Cuando se pide recargar (por ejemplo, Luego de crear un enlace) se vuelve a la página 1
+// Cuando se pide recargar (por ejemplo, luego de crear un enlace) se vuelve a la página 1
 watch(
   () => props.refreshKey,
   () => {
@@ -59,6 +59,7 @@ watch(
             <th>Destino</th>
             <th class="num">Clics</th>
             <th>Estado</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -71,12 +72,11 @@ watch(
             </td>
             <td class="destination" :title="l.original_url">{{ l.original_url }}</td>
             <td class="num">{{ l.total_clicks }}</td>
-            <td>
-              <span v-if="l.is_expired" class="badge badge-danger">Expirado</span>
-              <span v-else-if="l.expires_at" class="badge badge-warn">
-                Expira {{ formatDate(l.expires_at) }}
-              </span>
-              <span v-else class="badge">Sin expiración</span>
+            <td><LinkStatus :link="l" /></td>
+            <td class="actions">
+              <RouterLink :to="{ name: 'link-detail', params: { id: l.id } }">
+                Estadísticas
+              </RouterLink>
             </td>
           </tr>
         </tbody>
