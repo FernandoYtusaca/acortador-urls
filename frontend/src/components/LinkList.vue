@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import { api } from '@/services/api'
 import { formatDate } from '@/utils/format'
+import CopyButton from '@/components/CopyButton.vue'
 
 const props = defineProps({
   refreshKey: { type: Number, default: 0 },
@@ -62,10 +63,11 @@ watch(
         </thead>
         <tbody>
           <tr v-for="l in result.data" :key="l.id">
-            <td>
+            <td class="short">
               <a :href="l.short_url" target="_blank" rel="noopener">{{
                 shortLabel(l.short_url)
               }}</a>
+              <CopyButton :text="l.short_url" />
             </td>
             <td class="destination" :title="l.original_url">{{ l.original_url }}</td>
             <td class="num">{{ l.total_clicks }}</td>

@@ -332,3 +332,38 @@ button.link.danger:hover {
   background: #fee2e2;
   color: #991b1b;
 }
+
+.link-form {
+  display: grid;
+  gap: 1rem;
+}
+.link-form h2 {
+  margin: 0;
+}
+.link-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.table .short {
+  white-space: nowrap;
+}
+
+.success {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #065f46;
+}
+
+@media (max-width: 600px) {
+  .link-form-row {
+    grid-template-columns: 1fr;
+  }
+}
