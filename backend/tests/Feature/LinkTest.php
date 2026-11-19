@@ -185,4 +185,17 @@ class LinkTest extends TestCase
     {
         $this->getJson('/api/links')->assertUnauthorized();
     }
+
+    public function test_expiration_is_stored_in_the_app_timezone(): void
+    {
+        config(['app.timezone' => 'Asia/Tokyo']);
+        $user = User::factory()->create();
+        $this->actingAs($user, 'sanctum')
+        ->postJson('/api/links', [
+            'original_url' => 'https://example.com',
+            'expires_at' => '2030-01-01T00:00:00Z',
+        ])
+        ->assertCreated();
+        $this->assertDatabaseHas('links', ['expires_at' => '2030-01-01 09:00:00']);
+    }
 }

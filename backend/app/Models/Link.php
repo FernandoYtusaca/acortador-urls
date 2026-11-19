@@ -7,11 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Support\Carbon;
+
 class Link extends Model
 {
     protected $fillable = ['original_url', 'code', 'expires_at'];
 
     protected $appends = ['short_url', 'is_expired'];
+
+    protected function expiresAt(): Attribute
+    {
+        return Attribute::set(
+            fn ($value) => $value === null
+            ? null
+            : Carbon::parse($value)->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s')
+            );
+    }
 
     protected function casts(): array
     {
