@@ -198,4 +198,71 @@ class LinkTest extends TestCase
         ->assertCreated();
         $this->assertDatabaseHas('links', ['expires_at' => '2030-01-01 09:00:00']);
     }
+
+    public function test_links_can_be_filtered_by_status(): void
+    {
+        $user = User::factory()->create();
+        $this->makeLink($user, ['code' => 'sin001']);
+        $this->makeLink($user, ['code' => 'fut001', 'expires_at' => now()->addDay()]);
+        $this->makeLink($user, ['code' => 'exp001', 'expires_at' => now()->subDay()]);
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?status=active')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?status=expired')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.code', 'exp001');
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?status=otro')
+        ->assertUnprocessable();
+    }
+
+    public function test_links_can_be_sorted_by_clicks(): void
+    {
+        $user = User::factory()->create();
+        $low = $this->makeLink($user, ['code' => 'low001']);
+        $high = $this->makeLink($user, ['code' => 'high01']);
+        $low->forceFill(['total_clicks' => 1])->save();
+        $high->forceFill(['total_clicks' => 10])->save();
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?sort=total_clicks&direction=desc')
+        ->assertJsonPath('data.0.code', 'high01');
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?sort=total_clicks&direction=asc')
+        ->assertJsonPath('data.0.code', 'low001');
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links?sort=password')
+        ->assertUnprocessable();
+    }
+
+    public function test_summary_returns_totals_for_the_user(): void
+    {
+        $user = User::factory()->create();
+        $a = $this->makeLink($user, ['code' => 'aaa001']);
+        $this->makeLink($user, ['code' => 'bbb001', 'expires_at' => now()->subDay()]);
+        $a->forceFill(['total_clicks' => 5])->save();
+        $a->clicks()->create(['clicked_at' => now()]);
+        $a->clicks()->create(['clicked_at' => now()->subDays(20)]);
+
+        // Un enlace de otro usuario no debe contar
+        User::factory()->create()->links()->create(['original_url' => 'https://other.com', 'code' => 'zzz001']);
+
+        $this->actingAs($user, 'sanctum')
+        ->getJson('/api/links/summary')
+        ->assertOk()
+        ->assertExactJson([
+            'total_links' => 2,
+            'active_links' => 1,
+            'total_clicks' => 5,
+            'clicks_last_7_days' => 1,
+        ]);
+    }
 }

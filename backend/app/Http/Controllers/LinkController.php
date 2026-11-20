@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Link;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\LinkClick;
 
 class LinkController extends Controller
 {
@@ -12,7 +13,25 @@ class LinkController extends Controller
 
     public function index(Request $request)
     {
-        return $request->user()->links()->latest()->paginate(15);
+        $request->validate([
+            'status' => ['nullable', Rule::in(['active', 'expired'])],
+            'sort' => ['nullable', Rule::in(['created_at', 'total_clicks'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
+        ]);
+
+        $sort = $request->input('sort', 'created_at');
+        $direction = $request->input('direction', 'desc');
+
+        return $request->user()->links()
+        ->when($request->status === 'active', fn ($q) => $q->where(
+            fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now())
+        ))
+        ->when($request->status === 'expired', fn ($q) => $q
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now()))
+        ->orderBy($sort, $direction)
+        ->orderByDesc('id')
+        ->paginate(15);
     }
 
     public function store(Request $request)
@@ -114,6 +133,21 @@ class LinkController extends Controller
                     $fail('No se puede acortar un enlace de este mismo sitio.');
                 }
             },
+        ];
+    }
+
+    public function summary(Request $request)
+    {
+        $user = $request->user();
+        return [
+            'total_links' => $user->links()->count(),
+            'active_links' => $user->links()
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->count(),
+            'total_clicks' => (int) $user->links()->sum('total_clicks'),
+            'clicks_last_7_days' => LinkClick::whereIn('link_id', $user->links()->select('id'))
+            ->where('clicked_at', '>=', now()->subDays(6)->startOfDay())
+            ->count(),
         ];
     }
 }
