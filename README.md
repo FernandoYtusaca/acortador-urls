@@ -12,7 +12,7 @@ Acortador de enlaces con cuentas de usuario, redirección con registro de clics 
 - Registro e inicio de sesión (tokens con Laravel Sanctum)
 - Enlaces cortos con código aleatorio o alias personalizado
 - Fecha de expiración opcional; edición del destino y de la expiración; reactivación de enlaces vencidos
-- Redirección pública `/{código}` con conteo de clics y registro del origen (referer) y del navegador
+- Redirección pública con conteo de clics y registro del origen y del navegador
 - Estadísticas por enlace: clics por día (7, 30 o 90 días) y principales orígenes
 - Cada usuario solo ve y modifica sus propios enlaces
 - Tests automatizados del backend
