@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import AuthLayout from '@/components/AuthLayout.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -28,7 +29,7 @@ async function submit() {
 </script>
 
 <template>
-  <main class="auth">
+  <AuthLayout>
     <form class="card" @submit.prevent="submit">
       <h1>Crear cuenta</h1>
 
@@ -66,5 +67,5 @@ async function submit() {
 
       <p>¿Ya tienes cuenta? <RouterLink to="/login">Inicia sesión</RouterLink></p>
     </form>
-  </main>
+  </AuthLayout>
 </template>

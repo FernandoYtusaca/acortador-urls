@@ -2,8 +2,9 @@
 import { onMounted, ref, watch } from 'vue'
 import { api } from '@/services/api'
 import CopyButton from '@/components/CopyButton.vue'
+import LinkAvatar from '@/components/LinkAvatar.vue'
 import LinkStatus from '@/components/LinkStatus.vue'
-import { formatDate, formatDateTime } from '@/utils/format'
+import { formatDate, formatDateTime, hostOf } from '@/utils/format'
 
 const props = defineProps({
   refreshKey: { type: Number, default: 0 },
@@ -70,7 +71,6 @@ watch([status, sort, direction], () => {
 
 watch(page, loadLinks)
 
-// Cuando el padre pide recargar (por ejemplo, tras crear un enlace) se vuelve a la página 1
 watch(
   () => props.refreshKey,
   () => {
@@ -111,14 +111,14 @@ watch(
           <thead>
             <tr>
               <th></th>
-              <th>Enlace corto</th>
+              <th>Enlace</th>
               <th>
                 <button type="button" class="sort" @click="sortBy('total_clicks')">
                   Clics
                   <span v-if="sort === 'total_clicks'">{{ direction === 'desc' ? '↓' : '↑' }}</span>
                 </button>
               </th>
-              <th>
+              <th class="hide-sm">
                 <button type="button" class="sort" @click="sortBy('created_at')">
                   Creado
                   <span v-if="sort === 'created_at'">{{ direction === 'desc' ? '↓' : '↑' }}</span>
@@ -138,7 +138,13 @@ watch(
                     :aria-expanded="expandedId === l.id"
                     aria-label="Ver detalles"
                   >
-                    <svg class="chevron" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                    <svg
+                      class="chevron"
+                      viewBox="0 0 20 20"
+                      width="16"
+                      height="16"
+                      aria-hidden="true"
+                    >
                       <path
                         d="M5 8l5 5 5-5"
                         fill="none"
@@ -150,13 +156,27 @@ watch(
                     </svg>
                   </button>
                 </td>
-                <td class="strong">
-                  <a :href="l.short_url" target="_blank" rel="noopener" @click.stop>
-                    {{ shortLabel(l.short_url) }}
-                  </a>
+
+                <td>
+                  <div class="link-cell">
+                    <LinkAvatar :url="l.original_url" />
+                    <div>
+                      <div class="link-title">{{ hostOf(l.original_url) }}</div>
+                      <a
+                        class="link-sub"
+                        :href="l.short_url"
+                        target="_blank"
+                        rel="noopener"
+                        @click.stop
+                      >
+                        {{ shortLabel(l.short_url) }}
+                      </a>
+                    </div>
+                  </div>
                 </td>
-                <td>{{ l.total_clicks }}</td>
-                <td>{{ formatDate(l.created_at) }}</td>
+
+                <td class="strong">{{ l.total_clicks }}</td>
+                <td class="hide-sm">{{ formatDate(l.created_at) }}</td>
                 <td><LinkStatus :link="l" /></td>
               </tr>
 

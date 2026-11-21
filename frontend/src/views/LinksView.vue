@@ -4,6 +4,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import CopyButton from '@/components/CopyButton.vue'
 import LinkForm from '@/components/LinkForm.vue'
 import LinkList from '@/components/LinkList.vue'
+import StatCards from '@/components/StatCards.vue'
 
 const refreshKey = ref(0)
 const created = ref(null)
@@ -17,6 +18,8 @@ function onCreated(link) {
 <template>
   <main class="page">
     <AppHeader />
+
+    <StatCards :refresh-key="refreshKey" />
 
     <LinkForm @created="onCreated" />
 
